@@ -220,6 +220,7 @@ impl From<TrackType> for FourCC {
 const MEDIA_TYPE_H264: &str = "h264";
 const MEDIA_TYPE_H265: &str = "h265";
 const MEDIA_TYPE_VP9: &str = "vp9";
+const MEDIA_TYPE_AV1: &str = "av1";
 const MEDIA_TYPE_AAC: &str = "aac";
 const MEDIA_TYPE_TTXT: &str = "ttxt";
 
@@ -228,6 +229,7 @@ pub enum MediaType {
     H264,
     H265,
     VP9,
+    AV1,
     AAC,
     TTXT,
 }
@@ -246,6 +248,7 @@ impl TryFrom<&str> for MediaType {
             MEDIA_TYPE_H264 => Ok(MediaType::H264),
             MEDIA_TYPE_H265 => Ok(MediaType::H265),
             MEDIA_TYPE_VP9 => Ok(MediaType::VP9),
+            MEDIA_TYPE_AV1 => Ok(MediaType::AV1),
             MEDIA_TYPE_AAC => Ok(MediaType::AAC),
             MEDIA_TYPE_TTXT => Ok(MediaType::TTXT),
             _ => Err(Error::InvalidData("unsupported media type")),
@@ -259,6 +262,7 @@ impl From<MediaType> for &str {
             MediaType::H264 => MEDIA_TYPE_H264,
             MediaType::H265 => MEDIA_TYPE_H265,
             MediaType::VP9 => MEDIA_TYPE_VP9,
+            MediaType::AV1 => MEDIA_TYPE_AV1,
             MediaType::AAC => MEDIA_TYPE_AAC,
             MediaType::TTXT => MEDIA_TYPE_TTXT,
         }
@@ -271,6 +275,7 @@ impl From<&MediaType> for &str {
             MediaType::H264 => MEDIA_TYPE_H264,
             MediaType::H265 => MEDIA_TYPE_H265,
             MediaType::VP9 => MEDIA_TYPE_VP9,
+            MediaType::AV1 => MEDIA_TYPE_AV1,
             MediaType::AAC => MEDIA_TYPE_AAC,
             MediaType::TTXT => MEDIA_TYPE_TTXT,
         }
@@ -584,6 +589,12 @@ pub struct Vp9Config {
     pub height: u16,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
+pub struct Av1Config {
+    pub width: u16,
+    pub height: u16,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AacConfig {
     pub bitrate: u32,
@@ -611,6 +622,7 @@ pub enum MediaConfig {
     AvcConfig(AvcConfig),
     HevcConfig(HevcConfig),
     Vp9Config(Vp9Config),
+    Av1Config(Av1Config),
     AacConfig(AacConfig),
     TtxtConfig(TtxtConfig),
 }

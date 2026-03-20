@@ -27,6 +27,7 @@
 //!                     stsd
 //!                         avc1
 //!                         hev1
+//!                         av01
 //!                         mp4a
 //!                         tx3g
 //!                     stts
@@ -62,6 +63,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 
 use crate::*;
 
+pub(crate) mod av01;
 pub(crate) mod avc1;
 pub(crate) mod co64;
 pub(crate) mod ctts;
@@ -106,6 +108,7 @@ pub(crate) mod vmhd;
 pub(crate) mod vp09;
 pub(crate) mod vpcc;
 
+pub use av01::Av01Box;
 pub use avc1::Avc1Box;
 pub use co64::Co64Box;
 pub use ctts::CttsBox;
@@ -222,6 +225,8 @@ boxtype! {
     DrefBox => 0x64726566,
     UrlBox  => 0x75726C20,
     SmhdBox => 0x736d6864,
+    Av01Box => 0x61763031,
+    Av1CBox => 0x61763143,
     Avc1Box => 0x61766331,
     AvcCBox => 0x61766343,
     Hev1Box => 0x68657631,

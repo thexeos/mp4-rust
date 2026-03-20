@@ -2,6 +2,7 @@ use mp4::{
     AudioObjectType, AvcProfile, ChannelConfig, MediaType, Metadata, Mp4Reader, SampleFreqIndex,
     TrackType,
 };
+use mp4::Av01Box;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::time::Duration;
@@ -208,4 +209,50 @@ fn test_read_fragments() {
     );
     let eos = mp4_fragment.read_sample(1, 2);
     assert!(eos.is_err());
+}
+
+#[test]
+fn test_read_av1_mp4() {
+    let mut mp4 = get_reader("tests/samples/spbtv_sample_bipbop_av1_960x540_25fps.mp4");
+
+    assert_eq!(245747, mp4.size());
+    assert_eq!(mp4.tracks().len(), 2);
+
+    // track #1 — AAC audio
+    let track1 = mp4.tracks().get(&1).unwrap();
+    assert_eq!(track1.track_type().unwrap(), TrackType::Audio);
+    assert_eq!(track1.media_type().unwrap(), MediaType::AAC);
+
+    // track #2 — AV1 video
+    let track2 = mp4.tracks().get(&2).unwrap();
+    assert_eq!(track2.track_id(), 2);
+    assert_eq!(track2.track_type().unwrap(), TrackType::Video);
+    assert_eq!(track2.media_type().unwrap(), MediaType::AV1);
+    assert_eq!(track2.width(), 960);
+    assert_eq!(track2.height(), 540);
+
+    // Verify av01 sample entry was parsed
+    let av01: &Av01Box = track2.trak.mdia.minf.stbl.stsd.av01.as_ref().unwrap();
+    assert_eq!(av01.width, 960);
+    assert_eq!(av01.height, 540);
+
+    // Verify av1C config was parsed correctly
+    assert_eq!(av01.av1c.seq_profile, 0);
+    assert_eq!(av01.av1c.seq_level_idx_0, 4);
+    assert!(!av01.av1c.seq_tier_0);
+    assert!(!av01.av1c.high_bitdepth);
+    assert!(!av01.av1c.twelve_bit);
+    assert!(!av01.av1c.monochrome);
+    assert!(av01.av1c.chroma_subsampling_x);
+    assert!(av01.av1c.chroma_subsampling_y);
+    assert_eq!(av01.av1c.chroma_sample_position, 0);
+    assert!(!av01.av1c.initial_presentation_delay_present);
+    assert_eq!(av01.av1c.config_obus.len(), 13);
+
+    // Verify we can read video samples
+    let sample_count = mp4.sample_count(2).unwrap();
+    assert!(sample_count > 0);
+    let sample_1 = mp4.read_sample(2, 1).unwrap().unwrap();
+    assert!(!sample_1.bytes.is_empty());
+    assert!(sample_1.is_sync);
 }
