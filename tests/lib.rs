@@ -1,8 +1,8 @@
+use mp4::Av01Box;
 use mp4::{
     AudioObjectType, AvcProfile, ChannelConfig, MediaType, Metadata, Mp4Reader, SampleFreqIndex,
     TrackType,
 };
-use mp4::Av01Box;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::time::Duration;
