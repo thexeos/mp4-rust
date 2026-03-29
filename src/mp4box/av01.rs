@@ -3,6 +3,7 @@ use serde::Serialize;
 use std::io::{Read, Seek, Write};
 
 use crate::mp4box::*;
+use crate::types::Av1Config;
 
 /// AV1 Sample Entry box (`av01`).
 ///
@@ -257,7 +258,9 @@ impl<R: Read + Seek> ReadBox<&mut R> for Av1CBox {
         };
 
         // Remaining bytes are configOBUs
-        let config_obus_size = size - HEADER_SIZE - 4;
+        let config_obus_size = size
+            .checked_sub(HEADER_SIZE + 4)
+            .ok_or(Error::InvalidData("av1C size too small"))?;
         let mut config_obus = vec![0u8; config_obus_size as usize];
         reader.read_exact(&mut config_obus)?;
 
